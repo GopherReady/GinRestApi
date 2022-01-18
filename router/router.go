@@ -10,6 +10,7 @@ import (
 
 func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// 	middleware
+	g.Use(gin.Logger())
 	g.Use(gin.Recovery())
 	// 强制浏览器不使用缓存
 	g.Use(middleware.NoCache)
