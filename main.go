@@ -6,11 +6,32 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/GopherReady/GinRestApi/config"
 	"github.com/GopherReady/GinRestApi/router"
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+)
+
+var (
+	cfg = pflag.StringP("config", "c", "", "apiserver config file path.")
 )
 
 func main() {
+	pflag.Parse()
+
+	// init config
+	if err := config.Init(*cfg); err != nil {
+		panic(err)
+	}
+
+	// for {
+	// 	fmt.Println(viper.GetString("runmode"))
+	// 	time.Sleep(4*time.Second)
+	// }
+
+	// gin 有 3 种运行模式：debug、release 和 test，其中 debug 模式会打印很多 debug 信息。
+	gin.SetMode(viper.GetString("runmode"))
 	// Create the Gin engine
 	g := gin.New()
 
@@ -34,15 +55,15 @@ func main() {
 		log.Print("The router has been deployed successfully.")
 	}()
 
-	log.Printf("Start to listening the incoming requests on http address 127.0.0.1%s", ":8080")
-	log.Printf(http.ListenAndServe(":8080", g).Error())
+	log.Printf("Start to listening the incoming requests on http address 127.0.0.1%s", viper.GetString("addr"))
+	log.Printf(http.ListenAndServe(viper.GetString("addr"), g).Error())
 }
 
 // pingServer pings the http server to make sure the router is working.
 func pingServer() error {
-	for i := 0; i < 10; i++ {
+	for i := 0; i < viper.GetInt("max_ping_count"); i++ {
 		// Ping the server by sending a GET request to `/health`.
-		resp, err := http.Get("http://127.0.0.1:8080" + "/sd/health")
+		resp, err := http.Get(viper.GetString("url") + "/sd/health")
 		if err == nil && resp.StatusCode == 200 {
 			return nil
 		}
