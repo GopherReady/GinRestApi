@@ -57,8 +57,20 @@ func main() {
 		log.Printf("The router has been deployed successfully.")
 	}()
 
+	// Start to listening the incoming requests.
+	cert := viper.GetString("tls.cert")
+	key := viper.GetString("tls.key")
+	if cert != "" && key != "" {
+		go func() {
+			log.Printf("Start to listening the incoming requests on https address: %s", viper.GetString("tls.addr"))
+			log.Printf(http.ListenAndServeTLS(viper.GetString("tls.addr"), cert, key, g).Error())
+		}()
+	}
+
 	log.Printf("Start to listening the incoming requests on http address: %s", viper.GetString("addr"))
 	log.Printf(http.ListenAndServe(viper.GetString("addr"), g).Error())
+	// log.Printf("Start to listening the incoming requests on http address: %s", viper.GetString("addr"))
+	// log.Printf(http.ListenAndServe(viper.GetString("addr"), g).Error())
 }
 
 // pingServer pings the http server to make sure the router is working.
