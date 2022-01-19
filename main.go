@@ -9,6 +9,7 @@ import (
 	"github.com/GopherReady/GinRestApi/config"
 	"github.com/GopherReady/GinRestApi/model"
 	"github.com/GopherReady/GinRestApi/router"
+	"github.com/GopherReady/GinRestApi/router/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -35,8 +36,8 @@ func main() {
 	// Create the Gin engine
 	g := gin.New()
 
-	// Gin middlewares
-	var middleware []gin.HandlerFunc
+	// // Gin middlewares
+	// var middleware []gin.HandlerFunc
 
 	// Routes
 	router.Load(
@@ -44,7 +45,8 @@ func main() {
 		g,
 
 		// middlewares
-		middleware...,
+		middleware.RequestId(),
+		middleware.Logging(),
 	)
 
 	// Ping the server to make sure the router is working.
